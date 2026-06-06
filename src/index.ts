@@ -9,3 +9,6 @@ export type { BkashConfig } from "./providers/bkash/index.js";
 
 export { NagadProvider } from "./providers/nagad/index.js";
 export type { NagadConfig } from "./providers/nagad/index.js";
+
+export { SSLCommerzProvider } from "./providers/sslcommerz/index.js";
+export type { SSLCommerzConfig } from "./providers/sslcommerz/index.js";
