@@ -1,0 +1,23 @@
+{
+  "name": "@foxses/pay-bkash",
+  "version": "1.0.0",
+  "description": "bKash payment provider for foxses-pay",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "license": "MIT",
+  "peerDependencies": {
+    "@foxses/pay-core": "^1.0.0"
+  },
+  "dependencies": {
+    "axios": "^1.17.0"
+  },
+  "devDependencies": {
+    "@foxses/pay-core": "^1.0.0",
+    "@types/node": "^25.9.2",
+    "typescript": "^6.0.3"
+  }
+}

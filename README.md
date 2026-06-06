@@ -1,20 +1,20 @@
-# foxses-pay
+# @foxses/pay
 
 One API for Stripe, bKash, Nagad, SSLCommerz and more.
 
-[![npm version](https://img.shields.io/npm/v/foxses-pay)](https://www.npmjs.com/package/foxses-pay)
+[![npm version](https://img.shields.io/npm/v/@foxses/pay)](https://www.npmjs.com/package/@foxses/pay)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## Overview
+## Packages
 
-**foxses-pay** is a unified payment gateway library for Node.js. Instead of learning different APIs for every payment provider, you use one consistent API across all supported gateways.
-
-```ts
-// Same API — any provider
-const payment = await gateway.createPayment("bkash", { amount: 500, ... });
-const payment = await gateway.createPayment("nagad", { amount: 500, ... });
-const payment = await gateway.createPayment("sslcommerz", { amount: 500, ... });
-```
+| Package | Description | Install |
+|---------|-------------|---------|
+| [`@foxses/pay`](#foxsespay) | All-in-one — includes all providers | `npm i @foxses/pay` |
+| [`@foxses/pay-core`](#foxsespay-core) | Core engine — types, errors, gateway | `npm i @foxses/pay-core` |
+| [`@foxses/pay-bkash`](#provider-packages) | bKash provider | `npm i @foxses/pay-bkash` |
+| [`@foxses/pay-nagad`](#provider-packages) | Nagad provider | `npm i @foxses/pay-nagad` |
+| [`@foxses/pay-sslcommerz`](#provider-packages) | SSLCommerz provider | `npm i @foxses/pay-sslcommerz` |
+| [`@foxses/pay-stripe`](#provider-packages) | Stripe provider | `npm i @foxses/pay-stripe` |
 
 ## Supported Providers
 
@@ -25,37 +25,42 @@ const payment = await gateway.createPayment("sslcommerz", { amount: 500, ... });
 | SSLCommerz | Bangladesh | ✅ | ✅ | ✅ | ✅ |
 | Stripe | Global | ✅ | ✅ | ✅ | ✅ |
 
-## Installation
+---
+
+## @foxses/pay
+
+The simplest way to get started — includes all providers, zero extra imports.
 
 ```bash
-npm install foxses-pay
+npm install @foxses/pay
 ```
 
-## Quick Start
+### Simple API
 
 ```ts
-import { PaymentGateway } from "foxses-pay";
-import "foxses-pay/providers/bkash";      // registers bKash
-import "foxses-pay/providers/nagad";      // registers Nagad
-import "foxses-pay/providers/sslcommerz"; // registers SSLCommerz
-import "foxses-pay/providers/stripe";     // registers Stripe
+import { configure, createPayment, verifyPayment, refund } from "@foxses/pay";
 
-const gateway = new PaymentGateway();
-
-// Configure providers
-gateway.use("bkash", {
-  appKey: "YOUR_APP_KEY",
-  secretKey: "YOUR_APP_SECRET",
-  username: "YOUR_USERNAME",
-  password: "YOUR_PASSWORD",
-  callbackUrl: "https://yoursite.com/bkash/callback",
-  successUrl: "https://yoursite.com/payment/success",
-  failureUrl: "https://yoursite.com/payment/failure",
-  sandbox: true,
+// Step 1 — configure your providers once
+configure({
+  bkash: {
+    appKey: process.env.BKASH_APP_KEY,
+    secretKey: process.env.BKASH_APP_SECRET,
+    username: process.env.BKASH_USERNAME,
+    password: process.env.BKASH_PASSWORD,
+    callbackUrl: "https://yoursite.com/bkash/callback",
+    successUrl: "https://yoursite.com/payment/success",
+    failureUrl: "https://yoursite.com/payment/failure",
+    sandbox: true,
+  },
+  stripe: {
+    apiKey: process.env.STRIPE_SECRET_KEY,
+    successUrl: "https://yoursite.com/payment/success",
+    failureUrl: "https://yoursite.com/payment/cancel",
+  },
 });
 
-// Create a payment
-const payment = await gateway.createPayment("bkash", {
+// Step 2 — create a payment
+const payment = await createPayment("bkash", {
   amount: 500,
   currency: "BDT",
   orderId: "ORDER-001",
@@ -63,50 +68,97 @@ const payment = await gateway.createPayment("bkash", {
 });
 
 console.log(payment.checkoutUrl); // redirect user here
+
+// Step 3 — verify after callback
+const result = await verifyPayment("bkash", {
+  transactionId: paymentID,
+});
+
+console.log(result.status); // "completed"
+
+// Step 4 — refund
+const refunded = await refund("bkash", {
+  transactionId: result.transactionId,
+  amount: 500,
+});
 ```
 
-## Table of Contents
+### API
 
-- [Installation](#installation)
-- [Quick Start](#quick-start)
-- [Core Concepts](#core-concepts)
-- [Providers](#providers)
-  - [bKash](#bkash)
-  - [Nagad](#nagad)
-  - [SSLCommerz](#sslcommerz)
-- [API Reference](#api-reference)
-- [Response Format](#response-format)
-- [Error Handling](#error-handling)
-- [Payment Flow](#payment-flow)
+| Function | Description |
+|----------|-------------|
+| `configure(providers)` | Set up provider credentials once |
+| `createPayment(provider, params)` | Create payment → get `checkoutUrl` |
+| `verifyPayment(provider, params)` | Verify after user pays |
+| `getPaymentStatus(provider, id)` | Check status anytime |
+| `refund(provider, params)` | Issue a refund |
 
 ---
 
-## Core Concepts
+## Provider Packages
 
-### PaymentGateway
+Install only the providers you need — lighter bundle.
 
-The central class. Register providers with `.use()`, then call methods on it.
+```bash
+npm install @foxses/pay-core @foxses/pay-bkash
+```
 
 ```ts
-import { PaymentGateway } from "foxses-pay";
+import { PaymentGateway } from "@foxses/pay-core";
+import "@foxses/pay-bkash"; // registers bKash
 
 const gateway = new PaymentGateway();
-gateway.use("bkash", config);
+
+gateway.use("bkash", {
+  appKey: "...",
+  secretKey: "...",
+  username: "...",
+  password: "...",
+  callbackUrl: "https://yoursite.com/bkash/callback",
+  successUrl: "https://yoursite.com/payment/success",
+  failureUrl: "https://yoursite.com/payment/failure",
+  sandbox: true,
+});
+
+const payment = await gateway.createPayment("bkash", {
+  amount: 500,
+  currency: "BDT",
+  orderId: "ORDER-001",
+  customerPhone: "01700000000",
+});
+
+// Redirect user to:
+console.log(payment.checkoutUrl);
 ```
 
-### Provider Registration
+---
 
-Each provider must be imported to be registered. Import once at your app entry point.
+## @foxses/pay-core
+
+Advanced users who build custom providers or need multiple gateway instances.
+
+```bash
+npm install @foxses/pay-core
+```
 
 ```ts
-import "foxses-pay/providers/bkash";
-import "foxses-pay/providers/nagad";
-import "foxses-pay/providers/sslcommerz";
+import { PaymentGateway, BaseProvider } from "@foxses/pay-core";
+import type { CreatePaymentParams, PaymentResponse, PaymentConfig } from "@foxses/pay-core";
+
+// Build your own provider
+class MyProvider extends BaseProvider {
+  readonly name = "myprovider" as any;
+
+  async createPayment(params: CreatePaymentParams): Promise<PaymentResponse> {
+    // your implementation
+  }
+
+  async verifyPayment(params): Promise<PaymentResponse> { ... }
+  async getPaymentStatus(id: string): Promise<PaymentResponse> { ... }
+}
+
+PaymentGateway.registerProvider("myprovider" as any, MyProvider as any);
 ```
-
-### Sandbox Mode
-
-All providers support `sandbox: true` for testing. Set to `false` for production.
 
 ---
 
@@ -114,414 +166,143 @@ All providers support `sandbox: true` for testing. Set to `false` for production
 
 ### bKash
 
-bKash Tokenized Checkout API v1.2.0
-
-**Configuration**
+```bash
+npm install @foxses/pay-core @foxses/pay-bkash
+```
 
 ```ts
+import { PaymentGateway } from "@foxses/pay-core";
+import "@foxses/pay-bkash";
+
+const gateway = new PaymentGateway();
 gateway.use("bkash", {
-  appKey: "YOUR_APP_KEY",           // from bKash merchant dashboard
-  secretKey: "YOUR_APP_SECRET",     // from bKash merchant dashboard
-  username: "YOUR_USERNAME",        // bKash merchant username
-  password: "YOUR_PASSWORD",        // bKash merchant password
+  appKey: "YOUR_APP_KEY",
+  secretKey: "YOUR_APP_SECRET",   // bKash appSecret
+  username: "YOUR_USERNAME",
+  password: "YOUR_PASSWORD",
   callbackUrl: "https://yoursite.com/bkash/callback",
-  successUrl: "https://yoursite.com/payment/success",
-  failureUrl: "https://yoursite.com/payment/failure",
+  successUrl: "https://yoursite.com/success",
+  failureUrl: "https://yoursite.com/failure",
   sandbox: true,
 });
 ```
 
-**Payment Flow**
-
-```ts
-// Step 1: Create payment → redirect user to bkashURL
-const payment = await gateway.createPayment("bkash", {
-  amount: 500,
-  currency: "BDT",
-  orderId: "ORDER-001",
-  customerPhone: "01700000000",
-});
-// payment.checkoutUrl → redirect user here
-
-// Step 2: bKash calls callbackUrl with ?paymentID=xxx&status=success
-// Execute payment to confirm:
-const verified = await gateway.verifyPayment("bkash", {
-  transactionId: paymentId, // paymentID from callback
-});
-// verified.status → "completed"
-// verified.transactionId → bKash trxID
-
-// Step 3: Check status anytime
-const status = await gateway.getPaymentStatus("bkash", paymentId);
-
-// Step 4: Refund
-const refund = await gateway.refundPayment("bkash", {
-  transactionId: trxId, // bKash trxID
-  amount: 500,
-  reason: "Customer request",
-});
-```
-
-**Credentials:** Get from [bKash Merchant Dashboard](https://merchant.bkash.com)
+[Full bKash docs →](docs/providers/bkash.md)
 
 ---
 
 ### Nagad
 
-Nagad Checkout API v0.2.0 — uses RSA encryption for all sensitive data.
-
-**Configuration**
+```bash
+npm install @foxses/pay-core @foxses/pay-nagad
+```
 
 ```ts
+import { PaymentGateway } from "@foxses/pay-core";
+import "@foxses/pay-nagad";
+
+const gateway = new PaymentGateway();
 gateway.use("nagad", {
   merchantId: "YOUR_MERCHANT_ID",
   merchantNumber: "01XXXXXXXXX",
-  privateKey: "YOUR_RSA_PRIVATE_KEY",    // base64 or PEM format
-  nagadPublicKey: "NAGAD_PUBLIC_KEY",    // from Nagad merchant portal
+  privateKey: "YOUR_RSA_PRIVATE_KEY",
+  nagadPublicKey: "NAGAD_PUBLIC_KEY",
   callbackUrl: "https://yoursite.com/nagad/callback",
-  successUrl: "https://yoursite.com/payment/success",
-  failureUrl: "https://yoursite.com/payment/failure",
-  apiVersion: "v-0.2.0",
+  successUrl: "https://yoursite.com/success",
+  failureUrl: "https://yoursite.com/failure",
   sandbox: true,
 });
 ```
 
-**Payment Flow**
-
-```ts
-// Step 1: Create payment (initialize + complete in one call) → redirect user
-const payment = await gateway.createPayment("nagad", {
-  amount: 500,
-  currency: "BDT",
-  orderId: "ORDER-001",
-  metadata: { ip: "CLIENT_IP_ADDRESS" }, // required by Nagad
-});
-// payment.checkoutUrl → redirect user here
-// payment.transactionId → paymentReferenceId (save this)
-
-// Step 2: Nagad calls callbackUrl with ?payment_ref_id=xxx&status=Success
-// Verify using payment_ref_id:
-const verified = await gateway.verifyPayment("nagad", {
-  transactionId: paymentRefId,
-});
-// verified.status → "completed"
-// verified.transactionId → Nagad issuer trxID
-
-// Step 3: Check status anytime
-const status = await gateway.getPaymentStatus("nagad", paymentRefId);
-```
-
-**Keys Setup:**
-- Generate RSA key pair from Nagad merchant portal
-- Upload your public key to Nagad
-- Download Nagad's public key from portal
-- Keys can be raw base64 string or full PEM format — both supported
-
-**Credentials:** Get from [Nagad Merchant Portal](https://merchant.nagad.com)
-
----
-
-### Stripe
-
-Stripe Checkout Session — global card payments.
-
-**Configuration**
-
-```ts
-gateway.use("stripe", {
-  apiKey: "sk_test_YOUR_SECRET_KEY",
-  webhookSecret: "whsec_YOUR_WEBHOOK_SECRET",
-  successUrl: "https://yoursite.com/payment/success",
-  failureUrl: "https://yoursite.com/payment/cancel",
-  sandbox: true,
-});
-```
-
-**Payment Flow**
-
-```ts
-// Step 1: Create Checkout Session → redirect user to Stripe hosted page
-const payment = await gateway.createPayment("stripe", {
-  amount: 29.99,
-  currency: "USD",
-  orderId: "ORDER-001",
-  customerEmail: "user@example.com",
-  metadata: { productName: "Pro Plan" },
-});
-// payment.checkoutUrl → redirect user here
-
-// Step 2: Stripe redirects to successUrl with ?session_id=cs_xxx
-const verified = await gateway.verifyPayment("stripe", {
-  transactionId: sessionId,
-  amount: 29.99,
-});
-// verified.transactionId → pi_xxx (Payment Intent ID)
-
-// Step 3: Check status — accepts cs_xxx or pi_xxx
-const status = await gateway.getPaymentStatus("stripe", "cs_SESSION_ID");
-
-// Step 4: Refund — needs pi_xxx (Payment Intent ID)
-const refund = await gateway.refundPayment("stripe", {
-  transactionId: "pi_PAYMENT_INTENT_ID",
-  amount: 29.99,
-});
-```
-
-**Test Cards:**
-| Scenario | Card |
-|----------|------|
-| Success | 4242 4242 4242 4242 |
-| Decline | 4000 0000 0000 9995 |
-
-**Credentials:** Get from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)
+[Full Nagad docs →](docs/providers/nagad.md)
 
 ---
 
 ### SSLCommerz
 
-SSLCommerz Payment Gateway API v4
-
-**Configuration**
+```bash
+npm install @foxses/pay-core @foxses/pay-sslcommerz
+```
 
 ```ts
+import { PaymentGateway } from "@foxses/pay-core";
+import "@foxses/pay-sslcommerz";
+
+const gateway = new PaymentGateway();
 gateway.use("sslcommerz", {
   storeId: "YOUR_STORE_ID",
   storePassword: "YOUR_STORE_PASSWORD",
-  successUrl: "https://yoursite.com/payment/success",
-  failureUrl: "https://yoursite.com/payment/failure",
-  cancelUrl: "https://yoursite.com/payment/cancel",
-  callbackUrl: "https://yoursite.com/payment/ipn", // IPN URL
+  successUrl: "https://yoursite.com/success",
+  failureUrl: "https://yoursite.com/failure",
+  cancelUrl: "https://yoursite.com/cancel",
+  callbackUrl: "https://yoursite.com/ipn",
   sandbox: true,
 });
 ```
 
-**Payment Flow**
-
-```ts
-// Step 1: Create payment session → redirect user to GatewayPageURL
-const payment = await gateway.createPayment("sslcommerz", {
-  amount: 500,
-  currency: "BDT",
-  orderId: "ORDER-001",
-  customerName: "John Doe",
-  customerEmail: "john@example.com",
-  customerPhone: "01700000000",
-  metadata: {
-    productName: "T-Shirt",
-    productCategory: "clothing",
-    productProfile: "physical-goods",
-  },
-});
-// payment.checkoutUrl → redirect user here
-
-// Step 2: SSLCommerz redirects to success_url with val_id in query params
-// Verify using val_id — also pass amount to detect tampering:
-const verified = await gateway.verifyPayment("sslcommerz", {
-  transactionId: val_id, // from query params
-  amount: 500,           // must match — prevents amount tampering
-});
-// verified.status → "completed"
-// verified.transactionId → bank_tran_id
-
-// Step 3: Check status using your orderId (tran_id)
-const status = await gateway.getPaymentStatus("sslcommerz", "ORDER-001");
-
-// Step 4: Refund using bank_tran_id
-const refund = await gateway.refundPayment("sslcommerz", {
-  transactionId: bank_tran_id,
-  amount: 500,
-  reason: "Customer request",
-});
-```
-
-**Sandbox Test Cards:**
-
-| Card | Number | Expiry | CVV |
-|------|--------|--------|-----|
-| VISA | 4111111111111111 | 12/26 | 111 |
-| Mastercard | 5111111111111111 | 12/26 | 111 |
-| Amex | 371111111111111 | 12/26 | 111 |
-
-Mobile OTP: `111111` or `123456`
-
-**Credentials:** Get from [SSLCommerz Developer Portal](https://developer.sslcommerz.com)
+[Full SSLCommerz docs →](docs/providers/sslcommerz.md)
 
 ---
 
-## API Reference
+### Stripe
 
-### `gateway.use(provider, config)`
-
-Register and configure a payment provider.
-
-```ts
-gateway.use("bkash", config);
+```bash
+npm install @foxses/pay-core @foxses/pay-stripe
 ```
 
-### `gateway.createPayment(provider, params)`
-
-Create a new payment session.
-
 ```ts
-const payment = await gateway.createPayment("bkash", {
-  amount: 500,            // required — number, greater than 0
-  currency: "BDT",        // required
-  orderId: "ORDER-001",   // required — unique per transaction
-  customerName: "...",    // optional
-  customerEmail: "...",   // optional
-  customerPhone: "...",   // optional
-  metadata: {},           // optional — provider-specific extra data
+import { PaymentGateway } from "@foxses/pay-core";
+import "@foxses/pay-stripe";
+
+const gateway = new PaymentGateway();
+gateway.use("stripe", {
+  apiKey: "sk_test_YOUR_SECRET_KEY",
+  webhookSecret: "whsec_YOUR_WEBHOOK_SECRET",
+  successUrl: "https://yoursite.com/success",
+  failureUrl: "https://yoursite.com/cancel",
+  sandbox: true,
 });
 ```
 
-### `gateway.verifyPayment(provider, params)`
-
-Verify and execute a payment after user completes checkout.
-
-```ts
-const result = await gateway.verifyPayment("bkash", {
-  transactionId: "...", // required
-  orderId: "...",       // optional
-  amount: 500,          // optional — used for amount validation
-});
-```
-
-### `gateway.getPaymentStatus(provider, transactionId)`
-
-Query current payment status.
-
-```ts
-const status = await gateway.getPaymentStatus("bkash", "PAYMENT_ID");
-```
-
-### `gateway.refundPayment(provider, params)`
-
-Issue a refund.
-
-```ts
-const refund = await gateway.refundPayment("bkash", {
-  transactionId: "...", // required — provider trxID
-  amount: 500,          // optional — partial refund amount
-  reason: "...",        // optional
-});
-```
+[Full Stripe docs →](docs/providers/stripe.md)
 
 ---
 
 ## Response Format
 
-All providers return the same response structure.
-
-### PaymentResponse
+All providers return the same structure:
 
 ```ts
 {
   transactionId: string;   // provider's transaction ID
-  provider: string;        // "bkash" | "nagad" | "sslcommerz"
+  provider: string;        // "bkash" | "nagad" | "sslcommerz" | "stripe"
   amount: number;
   currency: string;
-  status: PaymentStatus;   // see below
-  checkoutUrl?: string;    // redirect URL (from createPayment)
-  raw?: unknown;           // full raw response from provider
+  status: "pending" | "completed" | "failed" | "cancelled" | "refunded";
+  checkoutUrl?: string;    // redirect user here (from createPayment)
+  raw?: unknown;           // full raw API response
 }
 ```
-
-### PaymentStatus
-
-```ts
-"pending"   // payment initiated, waiting for user
-"completed" // payment successful
-"failed"    // payment failed
-"cancelled" // user cancelled
-"refunded"  // payment refunded
-```
-
-### RefundResponse
-
-```ts
-{
-  refundId: string;
-  transactionId: string;
-  amount: number;
-  status: PaymentStatus;
-  raw?: unknown;
-}
-```
-
----
 
 ## Error Handling
 
-foxses-pay throws typed errors. Catch them by type for precise handling.
-
 ```ts
-import {
-  PaymentError,
-  AuthenticationError,
-  ValidationError,
-  NetworkError,
-  ProviderError,
-} from "foxses-pay";
+import { AuthenticationError, ValidationError, NetworkError, ProviderError } from "@foxses/pay";
 
 try {
-  const payment = await gateway.createPayment("bkash", params);
+  const payment = await createPayment("bkash", params);
 } catch (err) {
   if (err instanceof AuthenticationError) {
-    // Wrong API key / credentials
-    console.error("Auth failed:", err.message);
+    // Wrong credentials
   } else if (err instanceof ValidationError) {
     // Missing or invalid params
-    console.error("Validation:", err.message);
   } else if (err instanceof NetworkError) {
-    // HTTP/network failure
-    console.error("Network issue:", err.message);
+    // HTTP/network failure — safe to retry
   } else if (err instanceof ProviderError) {
-    // Provider returned an error response
-    console.error("Provider error:", err.message);
+    // Provider returned an error
   }
 }
 ```
-
-All errors expose:
-- `err.message` — human-readable message
-- `err.code` — error code string
-- `err.provider` — which provider threw the error
-
----
-
-## Payment Flow
-
-### Standard Flow (bKash / Nagad)
-
-```
-Your Server          User Browser         Payment Provider
-     |                    |                      |
-     |-- createPayment -->|                      |
-     |<-- checkoutUrl ----|                      |
-     |                    |-- redirect --------->|
-     |                    |<-- user pays --------|
-     |<-- callback -------|----------------------|
-     |-- verifyPayment -->|                      |
-     |<-- PaymentResponse-|                      |
-     |-- update order ----|                      |
-```
-
-### SSLCommerz Flow
-
-```
-Your Server          User Browser         SSLCommerz
-     |                    |                   |
-     |-- createPayment -->|                   |
-     |<-- GatewayPageURL--|                   |
-     |                    |-- redirect ------>|
-     |                    |<-- card payment --|
-     |<-- success_url redirect with val_id ---|
-     |-- verifyPayment(val_id) ------------->|
-     |<-- VALID / INVALID -------------------|
-     |-- update order ----|                   |
-```
-
----
 
 ## Framework Examples
 
@@ -529,16 +310,16 @@ Your Server          User Browser         SSLCommerz
 
 ```ts
 import express from "express";
-import { PaymentGateway } from "foxses-pay";
-import "foxses-pay/providers/bkash";
+import { configure, createPayment, verifyPayment } from "@foxses/pay";
+
+configure({
+  bkash: { /* ... */ },
+});
 
 const app = express();
-const gateway = new PaymentGateway();
 
-gateway.use("bkash", { /* config */ });
-
-app.post("/pay", async (req, res) => {
-  const payment = await gateway.createPayment("bkash", {
+app.post("/checkout", async (req, res) => {
+  const payment = await createPayment("bkash", {
     amount: req.body.amount,
     currency: "BDT",
     orderId: req.body.orderId,
@@ -547,17 +328,16 @@ app.post("/pay", async (req, res) => {
   res.json({ checkoutUrl: payment.checkoutUrl });
 });
 
-app.post("/bkash/callback", async (req, res) => {
+app.get("/bkash/callback", async (req, res) => {
   const { paymentID, status } = req.query;
-  if (status !== "success") return res.redirect("/payment/failed");
+  if (status !== "success") return res.redirect("/failed");
 
-  const verified = await gateway.verifyPayment("bkash", {
+  const result = await verifyPayment("bkash", {
     transactionId: paymentID as string,
   });
 
-  if (verified.status === "completed") {
-    // update your DB
-    res.redirect("/payment/success");
+  if (result.status === "completed") {
+    res.redirect("/success");
   }
 });
 ```
@@ -565,28 +345,27 @@ app.post("/bkash/callback", async (req, res) => {
 ### Next.js
 
 ```ts
-// app/api/pay/route.ts
-import { PaymentGateway } from "foxses-pay";
-import "foxses-pay/providers/bkash";
+// app/api/checkout/route.ts
+import { configure, createPayment } from "@foxses/pay";
 
-const gateway = new PaymentGateway();
-gateway.use("bkash", { /* config */ });
+configure({ stripe: { apiKey: process.env.STRIPE_KEY!, successUrl: "...", failureUrl: "..." } });
 
 export async function POST(req: Request) {
-  const body = await req.json();
-
-  const payment = await gateway.createPayment("bkash", {
-    amount: body.amount,
-    currency: "BDT",
-    orderId: body.orderId,
-    customerPhone: body.phone,
-  });
-
+  const { amount, orderId } = await req.json();
+  const payment = await createPayment("stripe", { amount, currency: "USD", orderId });
   return Response.json({ checkoutUrl: payment.checkoutUrl });
 }
 ```
 
----
+## Docs
+
+- [Getting Started](docs/getting-started.md)
+- [API Reference](docs/api-reference.md)
+- [Error Handling](docs/error-handling.md)
+- [bKash Provider](docs/providers/bkash.md)
+- [Nagad Provider](docs/providers/nagad.md)
+- [SSLCommerz Provider](docs/providers/sslcommerz.md)
+- [Stripe Provider](docs/providers/stripe.md)
 
 ## License
 
