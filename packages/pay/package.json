@@ -1,14 +1,26 @@
 {
   "name": "@foxses/pay",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "One API for Stripe, bKash, Nagad, SSLCommerz and more",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"
   },
-  "keywords": ["payment", "gateway", "bkash", "nagad", "sslcommerz", "stripe", "bangladesh"],
+  "keywords": [
+    "payment",
+    "gateway",
+    "bkash",
+    "nagad",
+    "sslcommerz",
+    "stripe",
+    "bangladesh"
+  ],
   "license": "MIT",
   "dependencies": {
     "@foxses/pay-core": "^1.0.0",

@@ -1,9 +1,13 @@
 {
   "name": "@foxses/pay-bkash",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "bKash payment provider for foxses-pay",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
+  "files": [
+    "dist",
+    "README.md"
+  ],
   "scripts": {
     "build": "tsc",
     "dev": "tsc --watch"

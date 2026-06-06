@@ -362,13 +362,15 @@ export async function POST(req: Request) {
 
 ## Docs
 
-- [Getting Started](docs/getting-started.md)
-- [API Reference](docs/api-reference.md)
-- [Error Handling](docs/error-handling.md)
-- [bKash Provider](docs/providers/bkash.md)
-- [Nagad Provider](docs/providers/nagad.md)
-- [SSLCommerz Provider](docs/providers/sslcommerz.md)
-- [Stripe Provider](docs/providers/stripe.md)
+**[paydoc.foxses.com](https://paydoc.foxses.com)**
+
+- [Getting Started](https://paydoc.foxses.com/docs/getting-started)
+- [API Reference](https://paydoc.foxses.com/docs/api-reference)
+- [Error Handling](https://paydoc.foxses.com/docs/error-handling)
+- [bKash Provider](https://paydoc.foxses.com/docs/providers/bkash)
+- [Nagad Provider](https://paydoc.foxses.com/docs/providers/nagad)
+- [SSLCommerz Provider](https://paydoc.foxses.com/docs/providers/sslcommerz)
+- [Stripe Provider](https://paydoc.foxses.com/docs/providers/stripe)
 
 ## Changelog
 
