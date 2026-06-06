@@ -12,3 +12,6 @@ export type { NagadConfig } from "./providers/nagad/index.js";
 
 export { SSLCommerzProvider } from "./providers/sslcommerz/index.js";
 export type { SSLCommerzConfig } from "./providers/sslcommerz/index.js";
+
+export { StripeProvider } from "./providers/stripe/index.js";
+export type { StripeConfig } from "./providers/stripe/index.js";

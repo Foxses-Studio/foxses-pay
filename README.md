@@ -23,7 +23,7 @@ const payment = await gateway.createPayment("sslcommerz", { amount: 500, ... });
 | bKash | Bangladesh | ✅ | ✅ | ✅ | ✅ |
 | Nagad | Bangladesh | ✅ | ✅ | ✅ | 🔜 |
 | SSLCommerz | Bangladesh | ✅ | ✅ | ✅ | ✅ |
-| Stripe | Global | 🔜 | 🔜 | 🔜 | 🔜 |
+| Stripe | Global | ✅ | ✅ | ✅ | ✅ |
 
 ## Installation
 
@@ -38,6 +38,7 @@ import { PaymentGateway } from "foxses-pay";
 import "foxses-pay/providers/bkash";      // registers bKash
 import "foxses-pay/providers/nagad";      // registers Nagad
 import "foxses-pay/providers/sslcommerz"; // registers SSLCommerz
+import "foxses-pay/providers/stripe";     // registers Stripe
 
 const gateway = new PaymentGateway();
 
@@ -217,6 +218,62 @@ const status = await gateway.getPaymentStatus("nagad", paymentRefId);
 - Keys can be raw base64 string or full PEM format — both supported
 
 **Credentials:** Get from [Nagad Merchant Portal](https://merchant.nagad.com)
+
+---
+
+### Stripe
+
+Stripe Checkout Session — global card payments.
+
+**Configuration**
+
+```ts
+gateway.use("stripe", {
+  apiKey: "sk_test_YOUR_SECRET_KEY",
+  webhookSecret: "whsec_YOUR_WEBHOOK_SECRET",
+  successUrl: "https://yoursite.com/payment/success",
+  failureUrl: "https://yoursite.com/payment/cancel",
+  sandbox: true,
+});
+```
+
+**Payment Flow**
+
+```ts
+// Step 1: Create Checkout Session → redirect user to Stripe hosted page
+const payment = await gateway.createPayment("stripe", {
+  amount: 29.99,
+  currency: "USD",
+  orderId: "ORDER-001",
+  customerEmail: "user@example.com",
+  metadata: { productName: "Pro Plan" },
+});
+// payment.checkoutUrl → redirect user here
+
+// Step 2: Stripe redirects to successUrl with ?session_id=cs_xxx
+const verified = await gateway.verifyPayment("stripe", {
+  transactionId: sessionId,
+  amount: 29.99,
+});
+// verified.transactionId → pi_xxx (Payment Intent ID)
+
+// Step 3: Check status — accepts cs_xxx or pi_xxx
+const status = await gateway.getPaymentStatus("stripe", "cs_SESSION_ID");
+
+// Step 4: Refund — needs pi_xxx (Payment Intent ID)
+const refund = await gateway.refundPayment("stripe", {
+  transactionId: "pi_PAYMENT_INTENT_ID",
+  amount: 29.99,
+});
+```
+
+**Test Cards:**
+| Scenario | Card |
+|----------|------|
+| Success | 4242 4242 4242 4242 |
+| Decline | 4000 0000 0000 9995 |
+
+**Credentials:** Get from [Stripe Dashboard](https://dashboard.stripe.com/apikeys)
 
 ---
 
