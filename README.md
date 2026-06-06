@@ -3,6 +3,7 @@
 One API for Stripe, bKash, Nagad, SSLCommerz and more.
 
 [![npm version](https://img.shields.io/npm/v/@foxses/pay)](https://www.npmjs.com/package/@foxses/pay)
+[![npm downloads](https://img.shields.io/npm/dm/@foxses/pay)](https://www.npmjs.com/package/@foxses/pay)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 ## Packages
@@ -34,6 +35,8 @@ The simplest way to get started — includes all providers, zero extra imports.
 ```bash
 npm install @foxses/pay
 ```
+
+> **Live on npm:** [@foxses/pay](https://www.npmjs.com/package/@foxses/pay)
 
 ### Simple API
 
@@ -366,6 +369,16 @@ export async function POST(req: Request) {
 - [Nagad Provider](docs/providers/nagad.md)
 - [SSLCommerz Provider](docs/providers/sslcommerz.md)
 - [Stripe Provider](docs/providers/stripe.md)
+
+## Changelog
+
+### v1.0.0
+- ✅ `@foxses/pay` — main package with simple API
+- ✅ `@foxses/pay-bkash` — bKash Tokenized Checkout v1.2.0
+- ✅ `@foxses/pay-nagad` — Nagad Checkout v0.2.0 with RSA encryption
+- ✅ `@foxses/pay-sslcommerz` — SSLCommerz API v4
+- ✅ `@foxses/pay-stripe` — Stripe Checkout Session
+- ✅ `@foxses/pay-core` — core engine for custom providers
 
 ## License
 
