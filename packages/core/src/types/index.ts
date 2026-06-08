@@ -13,7 +13,8 @@ export type SupportedProvider =
   | "sslcommerz"
   | "coinbase"
   | "nowpayments"
-  | "coinpayments";
+  | "coinpayments"
+  | "cryptomus";
 
 export interface PaymentConfig {
   apiKey?: string;

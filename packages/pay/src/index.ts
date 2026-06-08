@@ -6,6 +6,7 @@ import "@foxses/pay-stripe";
 import "@foxses/pay-coinbase";
 import "@foxses/pay-nowpayments";
 import "@foxses/pay-coinpayments";
+import "@foxses/pay-cryptomus";
 
 import { PaymentGateway } from "@foxses/pay-core";
 import type {
@@ -27,6 +28,7 @@ export * from "@foxses/pay-stripe";
 export * from "@foxses/pay-coinbase";
 export * from "@foxses/pay-nowpayments";
 export * from "@foxses/pay-coinpayments";
+export * from "@foxses/pay-cryptomus";
 
 // ─── Singleton simple API ────────────────────────────────────────────────────
 
