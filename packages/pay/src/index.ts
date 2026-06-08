@@ -8,6 +8,8 @@ import "@foxses/pay-nowpayments";
 import "@foxses/pay-coinpayments";
 import "@foxses/pay-cryptomus";
 import "@foxses/pay-binance";
+import "@foxses/pay-paypal";
+import "@foxses/pay-payeer";
 
 import { PaymentGateway } from "@foxses/pay-core";
 import type {
@@ -31,6 +33,8 @@ export * from "@foxses/pay-nowpayments";
 export * from "@foxses/pay-coinpayments";
 export * from "@foxses/pay-cryptomus";
 export * from "@foxses/pay-binance";
+export * from "@foxses/pay-paypal";
+export * from "@foxses/pay-payeer";
 
 // ─── Singleton simple API ────────────────────────────────────────────────────
 

@@ -1,6 +1,6 @@
 {
   "name": "@foxses/pay",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "One API for Stripe, bKash, Nagad, SSLCommerz, Coinbase, NOWPayments, CoinPayments and more",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -36,7 +36,9 @@
     "@foxses/pay-nowpayments": "^1.0.0",
     "@foxses/pay-coinpayments": "^1.0.0",
     "@foxses/pay-cryptomus": "^1.0.0",
-    "@foxses/pay-binance": "^1.0.0"
+    "@foxses/pay-binance": "^1.0.0",
+    "@foxses/pay-paypal": "^1.0.0",
+    "@foxses/pay-payeer": "^1.0.0"
   },
   "devDependencies": {
     "@types/node": "^25.9.2",

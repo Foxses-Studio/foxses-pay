@@ -15,7 +15,9 @@ export type SupportedProvider =
   | "nowpayments"
   | "coinpayments"
   | "cryptomus"
-  | "binance";
+  | "binance"
+  | "paypal"
+  | "payeer";
 
 export interface PaymentConfig {
   apiKey?: string;
