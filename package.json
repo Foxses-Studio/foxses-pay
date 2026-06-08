@@ -5,7 +5,7 @@
     "packages/*"
   ],
   "scripts": {
-    "build": "npm run build -w packages/core && npm run build -w packages/bkash && npm run build -w packages/nagad && npm run build -w packages/sslcommerz && npm run build -w packages/stripe && npm run build -w packages/pay",
+    "build": "npm run build -w packages/core && npm run build -w packages/bkash && npm run build -w packages/nagad && npm run build -w packages/sslcommerz && npm run build -w packages/stripe && npm run build -w packages/coinbase && npm run build -w packages/nowpayments && npm run build -w packages/coinpayments && npm run build -w packages/pay",
     "dev": "npm run dev --workspaces --if-present"
   }
 }

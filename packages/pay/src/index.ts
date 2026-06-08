@@ -3,6 +3,9 @@ import "@foxses/pay-bkash";
 import "@foxses/pay-nagad";
 import "@foxses/pay-sslcommerz";
 import "@foxses/pay-stripe";
+import "@foxses/pay-coinbase";
+import "@foxses/pay-nowpayments";
+import "@foxses/pay-coinpayments";
 
 import { PaymentGateway } from "@foxses/pay-core";
 import type {
@@ -21,6 +24,9 @@ export * from "@foxses/pay-bkash";
 export * from "@foxses/pay-nagad";
 export * from "@foxses/pay-sslcommerz";
 export * from "@foxses/pay-stripe";
+export * from "@foxses/pay-coinbase";
+export * from "@foxses/pay-nowpayments";
+export * from "@foxses/pay-coinpayments";
 
 // ─── Singleton simple API ────────────────────────────────────────────────────
 

@@ -10,7 +10,10 @@ export type SupportedProvider =
   | "bkash"
   | "nagad"
   | "rocket"
-  | "sslcommerz";
+  | "sslcommerz"
+  | "coinbase"
+  | "nowpayments"
+  | "coinpayments";
 
 export interface PaymentConfig {
   apiKey?: string;
